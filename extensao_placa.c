@@ -69,30 +69,30 @@ int main() {
    
     while(true) {
         int button_press = gpio_get(BUTTON_B);
-        sleep_ms(50);
 
         if(button_press == 0) {
             ssd1306_clear(&disp); //Limpa a tela do display
 
             gpio_put(LOAD, 0);
             sleep_ms(5);
+            printf("\nLOAD 0: %d\n", gpio_get(LOAD));
             gpio_put(LOAD, 1);
             sleep_ms(5);
+            printf("\nLOAD 1: %d\n", gpio_get(LOAD));
             
             for(int i = 0; i < 8; i++) {
                 printf("%d\n", gpio_get(SERIALOUT));
 
                 serial_value[i] = gpio_get(SERIALOUT);
+                print_texto(text=binary[serial_value[i]], (10*i), 2, 1);
 
                 gpio_put(CLK, 0);
                 sleep_ms(5);
+                printf("CLK 0: %d\n", gpio_get(CLK));
                 gpio_put(CLK, 1);
                 sleep_ms(5);
-
-                print_texto(text=binary[serial_value[i]], (10*i), 2, 1);
+                printf("CLK 1: %d\n", gpio_get(CLK));
             }
-
-            sleep_ms(100);
         }
     }
 
