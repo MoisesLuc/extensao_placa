@@ -60,12 +60,25 @@ void print_texto(char *msg, uint pos_x, uint pos_y, uint scale){
 // 3.3 // LOAD // CLK // SERIALOUT // GND //
 
 
+bool clock_interval(struct repeating_timer *t) {
+    if (gpio_get(CLK) == 0) {
+        gpio_put(CLK, 1);
+    } else {
+        gpio_put(CLK, 0);
+    }
+    
+    return true;
+}
+
 
 int main() {
     inicializa();
     char *text = ""; //texto do display
     int serial_value[] = {0, 0, 0, 0, 0, 0, 0, 0};
     char* binary[] = {"0", "1"};
+
+    struct repeating_timer timer;
+    add_repeating_timer_ms(5, clock_interval, NULL, &timer);
    
     while(true) {
         int button_press = gpio_get(BUTTON_B);
@@ -74,30 +87,18 @@ int main() {
             ssd1306_clear(&disp); //Limpa a tela do display
 
             gpio_put(LOAD, 0);
-            sleep_us(20);
-            gpio_put(CLK, 0);
-            sleep_us(20);
-            gpio_put(CLK, 1);
-            sleep_us(20);
+            sleep_ms(5);
 
             gpio_put(LOAD, 1);
-            sleep_us(20);
-            gpio_put(CLK, 0);
-            sleep_us(20);
-            gpio_put(CLK, 1);
+            sleep_ms(5);
+        
             
             for(int i = 0; i < 8; i++) {
-                printf("%d\n", gpio_get(SERIALOUT));
+                //printf("%d\n", gpio_get(SERIALOUT));
 
                 serial_value[i] = gpio_get(SERIALOUT);
                 print_texto(text=binary[serial_value[i]], (10*i), 2, 1);
-
-                gpio_put(CLK, 0);
-                sleep_us(20);
-                gpio_put(CLK, 1);
-                sleep_us(20);
-
-                print_texto(text=binary[serial_value[i]], (10*i), 2, 1);
+                sleep_ms(5);
             }
         }
     }
