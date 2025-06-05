@@ -74,11 +74,17 @@ int main() {
             ssd1306_clear(&disp); //Limpa a tela do display
 
             gpio_put(LOAD, 0);
-            sleep_ms(5);
-            printf("\nLOAD 0: %d\n", gpio_get(LOAD));
+            sleep_us(20);
+            gpio_put(CLK, 0);
+            sleep_us(20);
+            gpio_put(CLK, 1);
+            sleep_us(20);
+
             gpio_put(LOAD, 1);
-            sleep_ms(5);
-            printf("\nLOAD 1: %d\n", gpio_get(LOAD));
+            sleep_us(20);
+            gpio_put(CLK, 0);
+            sleep_us(20);
+            gpio_put(CLK, 1);
             
             for(int i = 0; i < 8; i++) {
                 printf("%d\n", gpio_get(SERIALOUT));
@@ -87,11 +93,11 @@ int main() {
                 print_texto(text=binary[serial_value[i]], (10*i), 2, 1);
 
                 gpio_put(CLK, 0);
-                sleep_ms(5);
-                printf("CLK 0: %d\n", gpio_get(CLK));
+                sleep_us(20);
                 gpio_put(CLK, 1);
-                sleep_ms(5);
-                printf("CLK 1: %d\n", gpio_get(CLK));
+                sleep_us(20);
+
+                print_texto(text=binary[serial_value[i]], (10*i), 2, 1);
             }
         }
     }
