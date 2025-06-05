@@ -69,30 +69,52 @@ int main() {
    
     while(true) {
         int button_press = gpio_get(BUTTON_B);
-        sleep_ms(50);
 
         if(button_press == 0) {
             ssd1306_clear(&disp); //Limpa a tela do display
 
             gpio_put(LOAD, 0);
-            sleep_ms(5);
+            sleep_us(20);
+            gpio_put(CLK, 0);
+            sleep_us(20);
+            gpio_put(CLK, 1);
+            sleep_us(20);
+
             gpio_put(LOAD, 1);
-            sleep_ms(5);
+            sleep_us(20);
             
+            // Primeiro lê todos os bits
             for(int i = 0; i < 8; i++) {
-                printf("%d\n", gpio_get(SERIALOUT));
-
-                serial_value[i] = gpio_get(SERIALOUT);
-
+                serial_value[7-i] = gpio_get(SERIALOUT);  // Inverte a ordem durante a leitura
+                printf("%d", serial_value[7-i]);
                 gpio_put(CLK, 0);
-                sleep_ms(5);
+                sleep_us(20);
                 gpio_put(CLK, 1);
-                sleep_ms(5);
-
-                print_texto(text=binary[serial_value[i]], (10*i), 2, 1);
+                sleep_us(20);
             }
 
-            sleep_ms(100);
+            // Calcula o valor decimal
+            int valor_decimal = 0;
+            for(int i = 0; i < 8; i++) {
+                valor_decimal = valor_decimal + (serial_value[i] << (7-i));
+            }
+            
+            // Exibe o valor decimal
+            char decimal_str[20];
+            sprintf(decimal_str, "Dec: %d", valor_decimal);
+            print_texto(text=decimal_str, 0, 20, 1);
+
+            // Exibe na ordem correta (não precisa mais inverter aqui)
+            for(int i = 0; i < 8; i++) {
+                if(i == 0) print_texto(text=binary[serial_value[0]], 0, 40, 1); // Deep Switch 1
+                else if(i == 1) print_texto(text=binary[serial_value[1]], 10, 40, 1); // Deep Switch 2
+                else if(i == 2) print_texto(text=binary[serial_value[2]], 20, 40, 1); // Deep Switch 3
+                else if(i == 3) print_texto(text=binary[serial_value[3]], 30, 40, 1); // Deep Switch 4
+                else if(i == 4) print_texto(text=binary[serial_value[4]], 40, 40, 1); // Deep Switch 5
+                else if(i == 5) print_texto(text=binary[serial_value[5]], 50, 40, 1); // Deep Switch 6
+                else if(i == 6) print_texto(text=binary[serial_value[6]], 60, 40, 1); // Deep Switch 7
+                else if(i == 7) print_texto(text=binary[serial_value[7]], 70, 40, 1); // Deep Switch 8
+            }
         }
     }
 
